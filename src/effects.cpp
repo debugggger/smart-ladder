@@ -47,28 +47,26 @@ void defaultEffect(struct LADDER &ladder){
     }
 }
 
-
 void ladderEffect(struct LADDER &ladder){
     if (waitLower == 1 || waitUpper == 1){
         if (millis() - workTime > MAX_WORK_TIME && ladder.stripMode == 1){
-        sensorCount = 0;
-        waitLower = 0;
-        waitUpper = 0;
-        ladder.upperSensor = 0;
-        ladder.lowerSensor = 0;
-        workTime = 0;
-        ladder.stripMode = 0;
-        for (int current_step = 0; current_step < NUM_STEPS; current_step++){
-            for (int i = current_step*AMOUNT; i < AMOUNT*(current_step + 1); i++)
-                ladder.leds[i] = CHSV(0, 0, 0);
-        }
-        for (int i = 0; i < LEDS_RAIL; i++)
-            ladder.leds_rail[i] = CHSV(0, 0, 0);
-        FastLED.show();
-        Serial.println("switch to 0 mode by time");
+            sensorCount = 0;
+            waitLower = 0;
+            waitUpper = 0;
+            ladder.upperSensor = 0;
+            ladder.lowerSensor = 0;
+            workTime = 0;
+            ladder.stripMode = 0;
+            for (int current_step = 0; current_step < NUM_STEPS; current_step++){
+                for (int i = current_step*AMOUNT; i < AMOUNT*(current_step + 1); i++)
+                    ladder.leds[i] = CHSV(0, 0, 0);
+            }
+            for (int i = 0; i < LEDS_RAIL; i++)
+                ladder.leds_rail[i] = CHSV(0, 0, 0);
+            FastLED.show();
+            Serial.println("switch to 0 mode by time");
         }
     }
-    
 
     if (ladder.upperSensor == 0 && ladder.lowerSensor == 0)
         return;
@@ -114,23 +112,6 @@ void ladderEffect(struct LADDER &ladder){
     }
 
     if (ladder.upperSensor == 1 && waitUpper == 1 && ladder.stripMode == 1 && millis() - workTime > 3000){
-        for (int current_step = NUM_STEPS; current_step > 0; current_step--){
-            for (int i = AMOUNT*current_step; i > AMOUNT*(current_step - 1); i--)
-                ladder.leds[i] = CHSV(0, 0, 0); 
-            FastLED.show();
-            delay(100);
-        }
-        for (int i = 0; i < LEDS_RAIL; i++)
-            ladder.leds_rail[i] = CHSV(0, 0, 0);
-        FastLED.show();
-
-        Serial.println("upper");
-        ladder.stripMode = 0;
-        ladder.upperSensor = 0;
-        sensorCount++;
-    }
-    if (ladder.lowerSensor == 1 && waitLower == 1 && ladder.stripMode == 1 && millis() - workTime > 3000){
-
         for (int i = 0; i < LEDS_RAIL; i++)
             ladder.leds_rail[i] = CHSV(0, 0, 0);
         FastLED.show();
@@ -140,17 +121,34 @@ void ladderEffect(struct LADDER &ladder){
             FastLED.show();
             delay(100);
         }
+
+        Serial.println("upper");
+        ladder.stripMode = 0;
+        ladder.upperSensor = 0;
+        sensorCount++;
+    }
+    if (ladder.lowerSensor == 1 && waitLower == 1 && ladder.stripMode == 1 && millis() - workTime > 3000){
+        for (int current_step = NUM_STEPS; current_step > 0; current_step--){
+            for (int i = AMOUNT*current_step; i > AMOUNT*(current_step - 1); i--)
+                ladder.leds[i] = CHSV(0, 0, 0); 
+            FastLED.show();
+            delay(100);
+        }
+        for (int i = 0; i < LEDS_RAIL; i++)
+            ladder.leds_rail[i] = CHSV(0, 0, 0);
+        
+        FastLED.show();
         Serial.println("lower");
         ladder.stripMode = 0;
         ladder.lowerSensor = 0;
         sensorCount++;
     }
-    if (sensorCount == 2){
-        sensorCount = 0;
-        waitLower = 0;
-        waitUpper = 0;
-        workTime = 0;
-    }
+    // if (sensorCount == 2){
+    //     sensorCount = 0;
+    //     waitLower = 0;
+    //     waitUpper = 0;
+    //     workTime = 0;
+    // }
 
 }
 

@@ -9,8 +9,8 @@ int startTime = 0;
 int lastSaveTime = 0;
 uint32_t sec = 0; 
 
-bool u1 = 0;
-bool l1 = 0;
+// bool u1 = 0;
+// bool l1 = 0;
 
 byte EEMEM effectsBrightAdr;
 byte EEMEM speedRainbowAdr;
@@ -42,7 +42,7 @@ void yield(){
     ladder.upperSensor = 0;
     ladder.lowerSensor = 0;
 
-    for (int i = 0; i < LEDS_RAIL; i++) //выключение перил
+    for (int i = 0; i < LEDS_RAIL; i++)
         ladder.leds_rail[i] = CHSV(0, 0, 0);
     FastLED.show();
   }
@@ -58,11 +58,12 @@ void loop() {
   }
 
   if (sec-lastSaveTime == 60){
-      lastSaveTime = millis() / 1000ul; 
-      Serial.println("save settings");
-      eeprom_update_byte(&effectsBrightAdr, ladder.effectsBright);
-      eeprom_update_byte(&speedRainbowAdr, ladder.speedRainbow);
-      delay(1000);
+      if (ladder.effectsBright != eeprom_read_byte(&effectsBrightAdr) || ladder.speedRainbow != eeprom_read_byte(&speedRainbowAdr)){
+          lastSaveTime = millis() / 1000ul; 
+          eeprom_update_byte(&effectsBrightAdr, ladder.effectsBright);
+          eeprom_update_byte(&speedRainbowAdr, ladder.speedRainbow);
+          delay(1000);
+      }
   }
 
   yield();
@@ -77,28 +78,6 @@ void loop() {
 
   if (ladder.stripMode == 1) {
       ladderEffect(ladder);
-  }
-
-
-  if (sec == 5 && u1 == 0){
-      ladder.upperSensor = 1;
-      u1 = 1;
-  }
-  if (sec == 10 && l1 == 0){
-      ladder.lowerSensor = 1;
-      l1 = 1;
-      u1 = 0;
-  }
-
-  if (sec == 15 && u1 == 0){
-      ladder.lowerSensor = 1;
-      u1 = 1;
-      l1 = 0;
-  }
-  if (sec == 20 && l1 == 0){
-      ladder.upperSensor = 1;
-      l1 = 1;
-      u1 = 0;
   }
 
 }

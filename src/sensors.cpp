@@ -4,6 +4,12 @@ bool pressFlag = false;
 unsigned long pressTime = 0;
 unsigned long releaseTime = 0;
 
+bool pirFlagLow = false;
+unsigned long pirTimeLow = 0;
+
+bool pirFlagUp = false;
+unsigned long pirTimeUp = 0;
+
 
 enum BUTTON_PRESS{
     empty,
@@ -84,6 +90,8 @@ void switchMode(struct LADDER &ladder){
 
 bool scanPir(struct LADDER &ladder){
     ladder.pirV = analogRead(LDR_PIN);
+    Serial.print("pirV = ");
+    Serial.println(ladder.pirV);
     if (ladder.pirV <= MLBTW){
         ladder.bright = ladder.pirV/4;
         if (ladder.bright > 255)
@@ -103,17 +111,30 @@ bool scanPir(struct LADDER &ladder){
 
 void scanMove(struct LADDER &ladder){
     
-    int pirVal1 = digitalRead(PIN_PIR1);//нижний
-    int pirVal2 = digitalRead(PIN_PIR2);//верхний
-    
-    if (pirVal1){
-        pirVal1 = 0;
+    if (digitalRead(PIN_PIR1) == LOW){
+        if (pirFlagLow == false){
+            pirTimeLow = millis();
+            pirFlagLow = true;
+            Serial.println("low pir");
+        }
+    }
+
+    if (pirFlagLow == true && millis()-pirTimeLow >= 10 ){
         ladder.upperSensor = 0;
         ladder.lowerSensor = 1;
+        pirFlagLow = false;
     }
-    if (pirVal2){
-        pirVal2 = 0;
+
+    if (digitalRead(PIN_PIR2) == LOW){
+        if (pirFlagUp == false){
+            pirTimeUp = millis();
+            pirFlagUp = true;
+            Serial.println("up pir");
+        }
+    }
+    if (pirFlagUp == true && millis()-pirTimeUp >= 10){
         ladder.lowerSensor = 0;
         ladder.upperSensor = 1;
+        pirFlagUp = false;
     }
 }
